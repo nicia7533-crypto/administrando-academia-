@@ -1,0 +1,43 @@
+name: Gerar CorpoDinamico.exe
+
+# Este arquivo faz o GitHub compilar o CorpoDinamico.exe automaticamente,
+# usando um computador Windows de verdade que o próprio GitHub fornece de
+# graça. Você não precisa ter Windows, não precisa digitar nenhum comando -
+# só subir os arquivos no GitHub e clicar em "Actions".
+#
+# Roda toda vez que você enviar (fizer "push") arquivos para o repositório,
+# ou quando você clicar manualmente em "Run workflow" na aba Actions.
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  compilar-exe:
+    name: Compilar no Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar o código enviado
+        uses: actions/checkout@v4
+
+      - name: Preparar o Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar as dependências do projeto
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Gerar o CorpoDinamico.exe
+        run: |
+          pyinstaller CorpoDinamico.spec --noconfirm
+
+      - name: Disponibilizar o .exe para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorpoDinamico
+          path: dist/CorpoDinamico.exe
+          if-no-files-found: error
